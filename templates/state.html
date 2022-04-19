@@ -1,0 +1,36 @@
+<html>
+    <head>
+    <meta name = "viewport" content = "width = device-width, initial scale = 1">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    </head>
+    <body>
+        <body>
+        <center><h2>{{ s }}</h2></center>
+        <div class = 'container'>
+            <div class = 'jumbotron'>
+                <div class='row'>
+                    <div style = 'color:orange' class = 'col-md-3 col-6 border border-warning'><div>Confirmed</div>{{ confirmed }}</div>
+                    <div  style = 'color:blue' class = 'col-md-3 col-6 border border-primary'><div>Active</div>{{ active }}</div>
+                    <div  style = 'color:green' class = 'col-md-3 col-6 border border-success'><div>Recovered</div>{{ recovered }}</div>
+                    <div  style = 'color:red' class = 'col-md-3 col-6 border border-danger'><div>Death</div>{{ death }}</div>
+                </div>
+            </div>
+        </div>
+        <center><h2>District</h2></center>
+        <div clas="container">
+        <div class='row'>
+        <div class = 'container col-xs-12 col-md-6'>
+                {% for i in district %}
+                <div style = 'height : 140px;padding-top:10px' class = 'jumbotron border border-primary'>
+                <div class='row'>
+                    <div class = 'col-md-4 col-12'><center>{{ i.0 }}</center></div>
+                    <div style = 'color:orange' class = 'col-md-2 col-6 border border-warning'>Confirmed : {{ i.1 }}</div>
+                    <div  style = 'color:blue' class = 'col-md-2 col-6 border border-primary'>Active : {{ i.2 }}</div>
+                    <div  style = 'color:green' class = 'col-md-2 col-6 border border-success'>Recovered : {{ i.3 }}</div>
+                    <div  style = 'color:red' class = 'col-md-2 col-6 border border-danger'>Death : {{ i.4 }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+        </div>
+    </body>
+</html>

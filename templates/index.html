@@ -1,0 +1,268 @@
+{% load static %}
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color">
+        <link rel="manifest" href="{%static "manifest.json" %}" />
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+        <script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <script src = 'https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js'></script>
+        <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+        <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register("{% static 'serviceworker.js' %}", {
+            scope: '/'})
+                  .then(function(registration) {
+                    console.log('Registration successful, scope is:', registration.scope);
+                  })
+                  .catch(function(error) {
+                    console.log('Service worker registration failed, error:', error);
+                  });
+                }
+
+        date = {{ date|safe }}
+        conf = {{ conf|safe }}
+        act = {{ act|safe }}
+        rec = {{ rec|safe }}
+        dth = {{ dth|safe }}
+        function cases(code){
+            state_code = {{ state_code|safe }}
+            state_con = {{ state_con|safe }}
+            var idx = state_code.indexOf(code)
+            return state_con[idx]
+        }
+        function colour(code){
+            state_code = {{ state_code|safe }}
+            state_con = {{ state_con|safe }}
+            var idx = state_code.indexOf(code)
+            con = state_con[idx]
+            c = "#facdcd"
+            if (con > 0 && con<= 50000)
+            {
+                c = "#facdcd"
+            }
+            else if (con > 50000 && con <= 100000)
+            {
+                c = "#feb1b1"
+            }
+            else if (con > 100000 && con <= 150000)
+            {
+                c = "#fe8d8d"
+            }
+            else if (con > 150000 && con <= 200000)
+            {
+                c = "#fe6f6f"
+            }
+            else if (con > 200000 && con <= 250000)
+            {
+                c = "#f85252"
+            }
+            else if (con > 250000 && con <= 300000)
+            {
+                c = "#fc3b3b"
+            }
+            else if (con > 300000 && con <= 350000)
+            {
+                c = "#fa2a2a"
+            }
+            else if (con > 300000 && con <= 350000)
+            {
+                c = "#fc1212"
+            }
+            else if (con>350000)
+            {
+                 c = "#fc1212"
+            }
+            return c
+        }
+        function sh(){
+            $('.dropdown-menu').show()
+        }
+        function put_in(a){
+               document.getElementById('inpt').value = a
+               $('.dropdown-menu').hide()
+        }
+        function hide_dp(){
+            $('.dropdown-menu').hide()
+        }
+        var app = angular.module('myApp', []);
+        app.controller('myCtrl', function($scope){
+                         $scope.st = {{ sta|safe }}
+                         $scope.start = 0;
+                         $scope.state = {{ state_code|safe }};
+                         $scope.move = function(){
+                             $scope.start = $scope.start+3
+                             document.getElementById('prev').disabled = false
+                             if($scope.start == 33)
+                             {
+                                 document.getElementById('nxt').disabled = true
+                             }
+                         }
+                         $scope.prev = function(){
+                             $scope.start = $scope.start-3
+                             document.getElementById('nxt').disabled = false
+                             if($scope.start == 0)
+                             {
+                                 document.getElementById('prev').disabled = true
+                             }
+                         }
+        });
+        </script>
+        <script src = "{%static "mapdata.js" %}"></script>
+        <script src = "{%static "countrymap.js" %}"></script>
+        <script src = "{%static "chart.js" %}"></script>
+    </head>
+    <body>
+    <div ng-app = "myApp" ng-controller="myCtrl">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+          <a class="navbar-brand" href="#">COVID19</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+              <li class="nav-item active">
+                <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#a">Search</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#map">Map</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#state">Statewise</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#graph">Graphs</a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+        <center><h2>COVID19</h2></center>
+        <!--- Contry Detail -->
+            <div class = 'container'>
+                <div class = 'jumbotron'>
+                    <div class='row'>
+                        <div style = 'color:orange' class = 'col-md-3 col-6 border border-warning'><div>Confirmed</div>{{ confirmed }}</div>
+                        <div  style = 'color:blue' class = 'col-md-3 col-6 border border-primary'><div>Active</div>{{ active }}</div>
+                        <div  style = 'color:green' class = 'col-md-3 col-6 border border-success'><div>Recovered</div>{{ recovered }}</div>
+                        <div  style = 'color:red' class = 'col-md-3 col-6 border border-danger'><div>Death</div>{{ death }}</div>
+                    </div>
+                </div>
+            </div>
+        <!--- End of Contry Detail -->
+
+        <!--- statewise data -->
+            <center><h2>Statewise</h2></center>
+            <!-- form for search state -->
+                  <div class= "container">
+                  <form id = 'a' method = 'POST' action = '/'>
+                      {% csrf_token %}
+                      <label>Search State Wise</label>
+                      <div tabindex="1" class="input-group mb-3" >
+                      <div class="input-group-prepend">
+                          {% verbatim %}
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick = "hide_dp()">State</button>
+                        <div class="dropdown-menu">
+                          <a class="dropdown-item" ng-repeat="x in state| filter : test " onclick = 'put_in(this.innerText)'>{{ x }}</a>
+                        </div>
+                      </div>
+                      <input required id = 'inpt' type="text" class="form-control" placeholder="Maharashtra" oninput = sh() name = "state_name" ng-model="test">
+                      {% endverbatim %}
+                      <button type="submit" form = 'a' class="btn btn-primary">Search</button>
+                    </div>
+
+                  </div>
+                  <!-- Error message if state is not found -->
+                      {% for i in messages %}
+                           <center><h5 style = "color : red">{{ i }}</h3></center>
+                      {% endfor %}
+                  <!-- End error message block -->
+                <br><br>
+                </form>
+            <!-- end form -->
+
+            <div clas="container"> <!-- container for both statewise data and Map -->
+            <div class='row'>      <!-- grid method 6 for Statewise data and 4 for Map -->
+            <!-- container for statewise data-->
+            <!-- loop start ach loop contain detail of 3 state -->
+                <div class = 'container  col-12 col-md-6 overflow-hidden'>
+                <div style = "height:650px;overflow-hidden" id = 'state' class = 'container border border-primary '>
+                        {% verbatim %}
+                        <!-- first state -->
+                        <div style = 'height : 200px;padding-top:10px' class=' jumbotron border border-primary'>
+                        <div  class='row'>
+                            <div class = 'col-md-4 col-12'><center>{{ st[start].state }}</center></div>
+                            <div style = 'color:orange' class = 'col-md-2 col-6 border border-warning'>Confirmed : {{ st[start].confirmed }}</div>
+                            <div  style = 'color:blue' class = 'col-md-2 col-6 border border-primary'>Active : {{ st[start].active }}</div>
+                            <div  style = 'color:green' class = 'col-md-2 col-6 border border-success'>Recovered : {{ st[start].recovered }}</div>
+                            <div  style = 'color:red' class = 'col-md-2 col-6 border border-danger'>Death : {{ st[start].deaths }}</div>
+                        </div>
+                        <br>
+                        <center><a href = '{{ st[start].state }}/{{ start+1 }}'>More Info</a></center>
+                        </div>
+                        <!-- second state -->
+                        <div style = 'height : 200px;padding-top:10px' class=' jumbotron border border-primary'>
+                        <div class='row'>
+                            <div class = 'col-md-4 col-12'><center>{{ st[start+1].state }}</center></div>
+                            <div style = 'color:orange' class = 'col-md-2 col-6 border border-warning'>Confirmed : {{ st[start+1].confirmed }}</div>
+                            <div  style = 'color:blue' class = 'col-md-2 col-6 border border-primary'>Active : {{ st[start+1].active }}</div>
+                            <div  style = 'color:green' class = 'col-md-2 col-6 border border-success'>Recovered : {{ st[start+1].recovered }}</div>
+                            <div  style = 'color:red' class = 'col-md-2 col-6 border border-danger'>Death : {{ st[start+1].deaths }}</div>
+                        </div>
+                        <br>
+                        <center><a href = '{{ st[start+1].state }}/{{ start+2 }}'>More Info</a></center>
+                        </div>
+                        <!-- third state -->
+                        <div style = 'height : 200px;padding-top:10px' class=' jumbotron border border-primary'>
+                        <div class='row'>
+                            <div class = 'col-md-4 col-12'><center>{{ st[start+2].state }}</center></div>
+                            <div style = 'color:orange' class = 'col-md-2 col-6 border border-warning'>Confirmed : {{ st[start+2].confirmed }}</div>
+                            <div  style = 'color:blue' class = 'col-md-2 col-6 border border-primary'>Active : {{ st[start+2].active }}</div>
+                            <div  style = 'color:green' class = 'col-md-2 col-6 border border-success'>Recovered : {{ st[start+2].recovered }}</div>
+                            <div  style = 'color:red' class = 'col-md-2 col-6 border border-danger'>Death : {{ st[start+2].deaths }}</div>
+                        </div>
+                        <br>
+                        <center><a href = '{{ st[start+2].state }}/{{ start+3 }}'>More Info</a></center>
+                        </div>
+                        </div>
+                <center>
+                    <br><br>
+                <button disabled type="button" class="btn btn-primary" id = 'prev' ng-click = prev()>Previous</button>  <!-- button to display prev 3 state -->
+                <button type="button" class="btn btn-primary" id= 'nxt' ng-click = move()>Next</button>                 <!-- button to display next 3 state -->
+                {% endverbatim %}
+                <!-- end loop -->
+                </center>
+            </div>
+        <!--- End of statewise data -->
+        <div class = 'col-md-2' style = "height:80px;"></div>
+        <div class = 'container col-10 col-md-4' id="map"></div> <!-- div for map -->
+        </div>
+        </div>
+        <br><br>
+        <!-- Graph section start -->
+        <center id = 'graph'><h2>GRAPHS</h2></center>
+        <br><br>
+        <!-- Grid method used 2 graph in a row for medium and large screen -->
+        <!-- Grid method used 1 graph in a row for small screen -->
+        <div class='row justify-content-center'>
+           <canvas id="conf" class= 'col-md-4 col-8' width="400" height="400"></canvas> <!-- Graph of Confirmed cases -->
+           <div clas = 'col-md-2'></div>
+            <canvas id="active" class= 'col-md-4 col-8' width="400" height="400"></canvas> <!-- Graph of Active cases -->
+        </div>
+        <div class='row justify-content-center'>
+            <canvas id="recovered" class= 'col-md-4 col-8' width="400" height="400"></canvas> <!-- Graph of recovered cases -->
+            <div clas = 'col-md-2'></div>
+            <canvas id="death" class= 'col-md-4 col-8' width="400" height="400"></canvas> <!-- Graph of death -->
+        </div>
+        </div>
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    </body>
+</html>
